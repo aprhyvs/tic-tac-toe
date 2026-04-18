@@ -9,31 +9,65 @@ function createPlayer (name) {
 
 const board = (() => {
   // 1. store the gameboard as an array inside of a Gameboard object
-  const gameBoard = {
-      board: [[1, 2, 3], [4, 5, 6], [7, 8, 9]] 
+  const gameBoard = [
+    [null, null, null], 
+    [null, null, null],
+    [null, null, null]
+  ]
+
+  const checkWinCondition = () => {
+    function winByRows(array) {
+      if (array.every((element) => element === null)){
+        console.log(false)
+        return;
+      }
+
+      return array.every((element) => element === array[0])
+    }
+
+    if (
+      winByRows(gameBoard[0]) || 
+      winByRows(gameBoard[1]) || 
+      winByRows(gameBoard[2])
+    ) {
+      console.log("you win by rows!")
+    }
   }
-  
+
   const displayBoard = () => {
-    for ( let row of gameBoard.board ) {
-      const rowString = row.join(' ');
-      console.log(rowString);
+    for ( let row of gameBoard) {
+      console.log(row);
     } 
   }
 
   const changeBoard = (row, column, change) => {
-    //check if cell has been changed
-    const cellToChange = gameBoard.board[row][column]
-    if (typeof cellToChange == 'string') {
-      console.log(`this is already marked. its ${cellToChange}.`)
+    try {
+
+      if (row >= 3) {
+        throw new ReferenceError("That's outside the bounds of row!")
+      } 
+      
+      if (column >= 3) {
+        throw new ReferenceError("That's outside the bounds of column!")
+      }
+
+      const cellToChange = gameBoard[row][column]
+      if (typeof cellToChange == 'string') {
+        console.warn(`this is already marked. its ${cellToChange}.`)
+        return;
+      }
+
+      gameBoard[row][column] = change
+    } catch (error) {
+      console.error(error)
       return;
+    } finally {
+      displayBoard();
+      checkWinCondition();
     }
-
-    gameBoard.board[row][column] = change
-
-    displayBoard()
   }
 
-  return { displayBoard, changeBoard }
+  return { gameBoard, displayBoard, changeBoard, }
 })();
 
 // 2. your players are stored in objects.
@@ -44,5 +78,8 @@ const players = {
 
 // 3. probably want an object to control the flow of the game.
 const gameFlow = {
-
+  
 }
+
+// Focus on getting a working game in the console first.
+board.displayBoard()
