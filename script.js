@@ -32,6 +32,40 @@ const board = (() => {
     ) {
       console.log("you win by rows!")
     }
+
+    function checkColumn(array, i, j, column) {
+      if (array[i][column] === null || array[j][column] === null || array[2][column] === null) {
+        console.log("column isn't complete. check the other column")
+        return;
+      } 
+      
+      if (array[i][column] === array[j][column]) {
+        console.log(`${array[i][column]} and ${array[j][column]}`)
+        console.log("true")
+        j++
+        if (array[i][column] === array[j][column]){
+          console.log(`${array[i][column]} and ${array[j][column]}`)
+          console.log("true, all columns check. win")
+          return true
+        } else {
+          console.log(`${array[i][column]} and ${array[j][column]}`)
+          console.log("first check was true, but second is false, check next column")
+          return false
+        }   
+      } else {
+        console.log(`${array[i][column]} and ${array[j][column]}`)
+        console.log("false, check next column")
+        return false
+      }
+    }
+
+    if (
+      checkColumn(gameBoard, 0, 1, 0) || 
+      checkColumn(gameBoard, 0, 1, 1) || 
+      checkColumn(gameBoard, 0, 1, 2)
+    ) {
+      console.log("you win by columns!")
+    }
   }
 
   const displayBoard = () => {
