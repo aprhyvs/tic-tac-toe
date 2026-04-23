@@ -16,6 +16,7 @@ const board = (() => {
   ]
 
   const checkWinCondition = () => {
+    // if player wins by columns
     function winByRows(array) {
       if (array.every((element) => element === null)){
         console.log(false)
@@ -33,6 +34,7 @@ const board = (() => {
       console.log("you win by rows!")
     }
 
+    // if player wins by rows
     function checkColumn(array, i, j, column) {
       if (array[i][column] === null || array[j][column] === null || array[2][column] === null) {
         console.log("column isn't complete. check the other column")
@@ -65,6 +67,27 @@ const board = (() => {
       checkColumn(gameBoard, 0, 1, 2)
     ) {
       console.log("you win by columns!")
+    }
+
+    // if player wins diagonal 
+    function checkDiagonal(array) {
+      if (array[1][1] === null) {
+        return false;
+      } 
+
+      if (array[0][0] === array[1][1] && array[2][2] === array[1][1]) {
+        return true
+      }
+
+      if (array[0][2] === array[1][1] && array[2][0] === array[1][1]) {
+        return true
+      }
+
+      return false
+    }
+
+    if (checkDiagonal(gameBoard)) {
+      console.log("you win by diagonals")
     }
   }
 
