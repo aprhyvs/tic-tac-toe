@@ -23,6 +23,11 @@ const board = (() => {
         return;
       }
 
+      if (!array.every((element) => element === array[0])) {
+        console.log("not all equal")
+        return;
+      }
+
       return array.every((element) => element === array[0])
     }
 
@@ -55,8 +60,7 @@ const board = (() => {
           return false
         }   
       } else {
-        console.log(`${array[i][column]} and ${array[j][column]}`)
-        console.log("false, check next column")
+        console.log(`${array[i][column]} and ${array[j][column]} = false, check next column`)
         return false
       }
     }
@@ -88,6 +92,28 @@ const board = (() => {
 
     if (checkDiagonal(gameBoard)) {
       console.log("you win by diagonals")
+    }
+
+    // if draw
+    function checkFull(array){
+      if (array.every((element) => typeof element === 'string')){
+        return true;
+      } else {
+        false;
+      }
+    }
+
+    function checkForDraw(){
+      if ((!winByRows(gameBoard[0]) && checkFull(gameBoard[0])) &&
+          (!winByRows(gameBoard[1]) && checkFull(gameBoard[1])) &&
+          (!winByRows(gameBoard[2]) && checkFull(gameBoard[2]))
+          ) {
+        return true;
+      }
+    }
+
+    if (checkForDraw()) {
+      console.log("it's a draw.");
     }
   }
 
