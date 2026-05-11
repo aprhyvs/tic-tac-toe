@@ -1,0 +1,17 @@
+.gameboard {
+  display: grid;
+  grid-template-columns: repeat(3, 80px);
+  gap: 16px;
+  padding: 16px;
+  justify-content: center;
+}
+
+.cell {
+  height: 80px;
+  background-color: hsl(0 0 32);
+  color: hsl(0 0 100);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 32px;
+}
