@@ -10,12 +10,12 @@ function createPlayer (name) {
 const board = (() => {
   // 1. store the gameboard as an array inside of a Gameboard object
   const gameBoard = [
-    // [null, null, null],
-    // [null, null, null],
-    // [null, null, null]
-    ['X','O','X'],
-    ['O','O','X'],
-    ['O','X','O']
+    [null, null, null],
+    [null, null, null],
+    [null, null, null]
+    // ['X','O','X'],
+    // ['O','O','X'],
+    // ['O','X','O']
   ]
 
   const checkWinCondition = () => {
@@ -101,9 +101,9 @@ const board = (() => {
     }
 
     function checkForDraw(){
-      if ((!winByRows(gameBoard[0]) && checkFull(gameBoard[0])) &&
-          (!winByRows(gameBoard[1]) && checkFull(gameBoard[1])) &&
-          (!winByRows(gameBoard[2]) && checkFull(gameBoard[2]))
+      if ((!checkIfEqualRows(gameBoard[0]) && checkFull(gameBoard[0])) &&
+          (!checkIfEqualRows(gameBoard[1]) && checkFull(gameBoard[1])) &&
+          (!checkIfEqualRows(gameBoard[2]) && checkFull(gameBoard[2]))
           ) {
         return true;
       }
@@ -114,19 +114,43 @@ const board = (() => {
     }
   }
 
+  const changeCell = () => {
+    
+  }
+
   const displayBoard = () => {
     const cells = document.querySelectorAll('.cell')
+    
+    let mark = "O"
+    function returnMark() {
+      if (mark == "O") {
+        mark = "X"
+        return "X"
+      }
+
+      if (mark == "X") {
+        mark = "O"
+        return "O"
+      }
+    } 
+
     for ( let row of gameBoard) {
       console.log(row);
     } 
 
-    for (let i = 0, j = 0, k = 0; i < 9; i++, k++) {
-      if (k > 2) {
-        j++
-        k = 0
+    for (let i = 0, row = 0, column = 0; i < 9; i++, column++) {
+      if (column > 2) {
+        row++
+        column = 0
       }
-      cells[i].textContent = gameBoard[j][k]
+      cells[i].textContent = gameBoard[row][column]
     }
+
+    // probably use two data attributes so i can properly use changeBoard()
+    // and a function something that toggles between "X" and "O".
+    cells.forEach((element) => element.addEventListener("click", () => {
+      changeBoard(element.dataset.row, element.dataset.column, returnMark())
+    }));
   }
 
   const changeBoard = (row, column, change) => {
