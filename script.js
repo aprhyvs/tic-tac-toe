@@ -13,9 +13,6 @@ const board = (() => {
     [null, null, null],
     [null, null, null],
     [null, null, null]
-    // ['X','O','X'],
-    // ['O','O','X'],
-    // ['O','X','O']
   ]
 
   const checkWinCondition = () => {
@@ -114,26 +111,31 @@ const board = (() => {
     }
   }
 
-  const changeCell = () => {
-    
-  }
+  // probably wrap in a function soon, 
+  // so it can be initialized for next games
+  const playerTurn = document.getElementById("player-turn")
+  const cells = document.querySelectorAll('.cell')
+  let mark = "O"
+  let turn = "player1"
 
-  const displayBoard = () => {
-    const cells = document.querySelectorAll('.cell')
-    
-    let mark = "O"
-    function returnMark() {
-      if (mark == "O") {
-        mark = "X"
-        return "X"
-      }
+  function returnMark() {
+    if (turn == "player1") {
+      mark = "X"
+      return mark 
+    }
 
-      if (mark == "X") {
-        mark = "O"
-        return "O"
-      }
-    } 
+    if (turn == "player2") {
+      mark = "O"
+      return mark 
+    }
 
+  } 
+
+  cells.forEach((element) => element.addEventListener("click", () => {
+    changeBoard(element.dataset.row, element.dataset.column, returnMark())
+  }));
+
+  const displayBoard = () => { 
     for ( let row of gameBoard) {
       console.log(row);
     } 
@@ -145,12 +147,18 @@ const board = (() => {
       }
       cells[i].textContent = gameBoard[row][column]
     }
+  }
 
-    // probably use two data attributes so i can properly use changeBoard()
-    // and a function something that toggles between "X" and "O".
-    cells.forEach((element) => element.addEventListener("click", () => {
-      changeBoard(element.dataset.row, element.dataset.column, returnMark())
-    }));
+  function changeTurn() {
+    if (turn == "player1") {
+      turn = "player2"
+      return "player2"
+    } 
+
+    if (turn == "player2") {
+      turn = "player1"
+      return "player1"
+    } 
   }
 
   const changeBoard = (row, column, change) => {
@@ -165,18 +173,21 @@ const board = (() => {
       }
 
       const cellToChange = gameBoard[row][column]
-      if (typeof cellToChange == 'string') {
+      if (typeof cellToChange == 'string') {  
         console.warn(`this is already marked. its ${cellToChange}.`)
-        return;
+        throw new ReferenceError("Turn did not change.")
       }
 
       gameBoard[row][column] = change
+
+      displayBoard();
+      checkWinCondition();
+      playerTurn.textContent = changeTurn()
+      console.log(turn)
+
     } catch (error) {
       console.error(error)
       return;
-    } finally {
-      displayBoard();
-      checkWinCondition();
     }
   }
 
