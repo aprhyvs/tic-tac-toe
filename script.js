@@ -113,10 +113,11 @@ const board = (() => {
 
   // probably wrap in a function soon, 
   // so it can be initialized for next games
-  const playerTurn = document.getElementById("player-turn")
-  const cells = document.querySelectorAll('.cell')
-  let mark = "O"
-  let turn = "player1"
+  const playerTurn = document.getElementById("player-turn");
+  const startGameBtn = document.getElementById("start-game");
+
+  let mark;
+  let turn;
 
   function returnMark() {
     if (turn == "player1") {
@@ -128,14 +129,42 @@ const board = (() => {
       mark = "O"
       return mark 
     }
-
   } 
 
-  cells.forEach((element) => element.addEventListener("click", () => {
-    changeBoard(element.dataset.row, element.dataset.column, returnMark())
-  }));
+  function startGame() {
+    const cells = document.querySelectorAll('.cell');
+    mark = "O";
+    turn = "player1"
+
+    cells.forEach((element) => {
+      element.dataset.marked = "false"
+      element.textContent 
+    })
+
+    if (playerTurn.textContent) {
+      console.log('new game, clear the board')
+
+      // initial clear idea
+      for (let row = 0, column = 0; row < 3; row++) {
+        gameBoard[row].fill(null, 0);
+      }
+    }
+
+    playerTurn.textContent = "player1"    
+    cells.forEach((element) => element.addEventListener("click", () => {
+      if (element.dataset.marked == "true") {
+        console.warn(`element is marked, it's ${element.textContent}.`)
+        console.log(element)
+        return;
+      } else {
+        element.dataset.marked = "true"
+        changeBoard(element.dataset.row, element.dataset.column, returnMark())
+      }
+    }));
+  }
 
   const displayBoard = () => { 
+    const cells = document.querySelectorAll('.cell');
     for ( let row of gameBoard) {
       console.log(row);
     } 
@@ -148,6 +177,33 @@ const board = (() => {
       cells[i].textContent = gameBoard[row][column]
     }
   }
+
+  startGameBtn.addEventListener("click", () => {
+    const gameBoardEl = document.getElementById('game-board');
+    const cells = document.querySelectorAll('.cell');
+
+    // remove old gameBoard cells
+    if (cells.length > 0) {
+      cells.forEach(element => element.remove())
+    }
+
+    // create new gameBoard cells
+    for (let i = 0, row = 0, column = 0; i < 9; i++, column++) {
+      if (column > 2) {
+        row++
+        column = 0
+      }
+      const newCell = document.createElement("div")
+      newCell.classList.add('cell')
+      newCell.setAttribute('data-row', row)
+      newCell.setAttribute('data-column', column)
+      newCell.setAttribute('data-marked', false)
+      gameBoardEl.appendChild(newCell)
+    }
+
+    startGame()
+    displayBoard()
+  });
 
   function changeTurn() {
     if (turn == "player1") {
@@ -172,12 +228,6 @@ const board = (() => {
         throw new ReferenceError("That's outside the bounds of column!")
       }
 
-      const cellToChange = gameBoard[row][column]
-      if (typeof cellToChange == 'string') {  
-        console.warn(`this is already marked. its ${cellToChange}.`)
-        throw new ReferenceError("Turn did not change.")
-      }
-
       gameBoard[row][column] = change
 
       displayBoard();
@@ -191,7 +241,7 @@ const board = (() => {
     }
   }
 
-  return { gameBoard, displayBoard, changeBoard, }
+  return { gameBoard, displayBoard, changeBoard, startGame }
 })();
 
 // 2. your players are stored in objects.
@@ -204,6 +254,3 @@ const players = {
 const gameFlow = {
 
 }
-
-// Focus on getting a working game in the console first.
-board.displayBoard()
