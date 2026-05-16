@@ -7,6 +7,7 @@
 }
 
 .cell {
+  border: none;
   height: 80px;
   background-color: hsl(0 0 32);
   color: hsl(0 0 100);
