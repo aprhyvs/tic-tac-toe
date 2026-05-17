@@ -1,18 +1,24 @@
 .gameboard {
+  width: fit-content;
   display: grid;
   grid-template-columns: repeat(3, 80px);
-  gap: 16px;
-  padding: 16px;
   justify-content: center;
+  margin: 0 auto;
+  border: 1px solid hsl(0 0 16);
 }
 
 .cell {
   border: none;
   height: 80px;
-  background-color: hsl(0 0 32);
-  color: hsl(0 0 100);
+  background-color: hsl(0 0 96);
+  border: 1px solid hsl(0 0 16);
+  color: black;
   display: flex;
   justify-content: center;
   align-items: center;
   font-size: 32px;
+}
+
+.cell:disabled {
+  background-color: hsl(0 0 64);
 }

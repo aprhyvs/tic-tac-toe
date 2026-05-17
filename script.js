@@ -107,6 +107,12 @@ const board = (() => {
     return false
   }
 
+  function disableButtons() {
+    const cells = document.querySelectorAll('.cell');
+
+    cells.forEach((element) => element.disabled = true);
+  }
+
   const checkWinCondition = () => {
     if (
       checkIfEqualRows(gameBoard[0]) || 
@@ -114,6 +120,7 @@ const board = (() => {
       checkIfEqualRows(gameBoard[2])
     ) {
       console.log("you win by rows!")
+      disableButtons()
       return true
     }
 
@@ -123,11 +130,13 @@ const board = (() => {
       checkIfEqualColumns(gameBoard, 0, 1, 2)
     ) {
       console.log("you win by columns!")
+      disableButtons()
       return true
     }
 
     if (checkIfEqualDiagonals(gameBoard)) {
       console.log("you win by diagonals")
+      disableButtons()
       return true
     }
   }
