@@ -8,13 +8,6 @@ function createPlayer (name) {
 }
 
 const board = (() => {
-  // 1. store the gameboard as an array inside of a Gameboard object
-  const gameBoard = [
-    [null, null, null],
-    [null, null, null],
-    [null, null, null]
-  ]
-
   // probably wrap in a function soon, 
   // so it can be initialized for next games
   const playerTurn = document.getElementById("player-turn");
@@ -25,7 +18,7 @@ const board = (() => {
 
   //==================//
   // HELPER FUNCTIONS //
-  //===================//
+  //==================//
   function changeTurn() {
     if (turn == "player1") {
       turn = "player2"
@@ -63,7 +56,11 @@ const board = (() => {
       return false;
     }
 
-    return array.every((element) => element === array[0])
+    if (array.every((element) => element === array[0])) {
+      return array[0]
+    } else {
+      return false;
+    }
   }
 
   function checkIfEqualColumns(array, i, j, column) {
@@ -113,15 +110,41 @@ const board = (() => {
     cells.forEach((element) => element.disabled = true);
   }
 
-  const checkWinCondition = () => {
+  // 1. store the gameboard as an array inside of a Gameboard object
+  const gameBoard = [
+    [null, null, null],
+    [null, null, null],
+    [null, null, null]
+  ]
+
+  const checkWinCondition = () => { 
+    // check if one of the rows are equal
     if (
-      checkIfEqualRows(gameBoard[0]) || 
+      checkIfEqualRows(gameBoard[0]) ||
       checkIfEqualRows(gameBoard[1]) || 
       checkIfEqualRows(gameBoard[2])
     ) {
-      console.log("you win by rows!")
+      // loop through gameBoard to identify who won
+      function thePlayerWonByRows() {
+        let i = 0;
+        do {
+          if (!checkIfEqualRows(gameBoard[i])) {
+            i += 1;
+          } else {
+            return checkIfEqualRows(gameBoard[i])
+          }
+        } while (!checkIfEqualRows(gameBoard[i]))
+      }
+
+      if (thePlayerWonByRows() === 'X') {
+        console.log(`${players.player1.name} is the winner`);
+        players.player1.addPoint()
+      } else {
+        console.log(`${players.player2.name} is the winner`);
+        players.player2.addPoint()
+      }
+
       disableButtons()
-      return true
     }
 
     if (
