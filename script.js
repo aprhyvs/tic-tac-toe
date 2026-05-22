@@ -63,7 +63,7 @@ const board = (() => {
     }
   }
 
-  function checkIfEqualColumns(array, i, j, column) {
+  function checkIfEqualColumn(array, i, j, column) {
     if (array[i][column] === null || array[j][column] === null || array[2][column] === null) {
       console.log("column isn't complete. check the other column")
       return;
@@ -76,7 +76,8 @@ const board = (() => {
       if (array[i][column] === array[j][column]){
         console.log(`${array[i][column]} and ${array[j][column]}`)
         console.log("true, all columns check. win")
-        return true
+        // return true
+        return array[i][column]
       } else {
         console.log(`${array[i][column]} and ${array[j][column]}`)
         console.log("first check was true, but second is false, check next column")
@@ -94,11 +95,11 @@ const board = (() => {
     } 
 
     if (array[0][0] === array[1][1] && array[2][2] === array[1][1]) {
-      return true
+      return array[1][1]
     }
 
     if (array[0][2] === array[1][1] && array[2][0] === array[1][1]) {
-      return true
+      return array[1][1]
     }
 
     return false
@@ -148,19 +149,45 @@ const board = (() => {
     }
 
     if (
-      checkIfEqualColumns(gameBoard, 0, 1, 0) || 
-      checkIfEqualColumns(gameBoard, 0, 1, 1) || 
-      checkIfEqualColumns(gameBoard, 0, 1, 2)
+      checkIfEqualColumn(gameBoard, 0, 1, 0) || 
+      checkIfEqualColumn(gameBoard, 0, 1, 1) || 
+      checkIfEqualColumn(gameBoard, 0, 1, 2)
     ) {
-      console.log("you win by columns!")
+      function thePlayerWonByColumns() {
+        let i = 0;
+        do {
+          if (!checkIfEqualColumn(gameBoard, 0, 1, i)) {
+            i += 1;
+          } else {
+            console.log(checkIfEqualColumn(gameBoard, 0, 1, i))
+            return checkIfEqualColumn(gameBoard, 0, 1, i)
+          }
+        } while (!checkIfEqualColumn(gameBoard, 0, 1, i))
+      }
+
+      if (thePlayerWonByColumns() === 'X') {
+        console.log(`${players.player1.name} is the winner`);
+        players.player1.addPoint()
+      } else {
+        console.log(`${players.player2.name} is the winner`);
+        players.player2.addPoint()
+      }
+
       disableButtons()
-      return true
     }
 
     if (checkIfEqualDiagonals(gameBoard)) {
-      console.log("you win by diagonals")
+      const thePlayerWonByDiagonals = checkIfEqualDiagonals(gameBoard)
+
+      if ( thePlayerWonByDiagonals == 'X') {
+        console.log(`${players.player1.name} is the winner`);
+        players.player1.addPoint()
+      } else {
+        console.log(`${players.player2.name} is the winner`);
+        players.player2.addPoint()
+      }
+
       disableButtons()
-      return true
     }
   }
 
@@ -169,6 +196,8 @@ const board = (() => {
       console.log("it's a draw.");
       return true;
     }
+
+    disableButtons()
   }
 
   function renderBoard() {
