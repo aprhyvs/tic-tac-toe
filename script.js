@@ -1,10 +1,19 @@
 function createPlayer (name) {
   let points = 0;
 
-  const addPoint = () => { points++ }
+  const addPoint = () => { 
+    points++ 
+  }
+
   const getPoint = () => { return points }
 
   return { name, addPoint, getPoint }
+}
+
+// 2. your players are stored in objects.
+const players = {
+  player1: createPlayer("Joe"),
+  player2: createPlayer("Mama")
 }
 
 const board = (() => {
@@ -13,6 +22,22 @@ const board = (() => {
   const playerTurn = document.getElementById("player-turn");
   const startGameBtn = document.getElementById("start-game");
 
+  //player 1 header textcontent
+  const player1NameEl = document.getElementById("player1-name");
+  const player1Name = players.player1.name 
+  player1NameEl.textContent = player1Name
+
+  const player1ScoreEl = document.getElementById("player1-score");
+  player1ScoreEl.textContent = players.player1.getPoint()
+
+  //player 2 header textcontent
+  const player2NameEl = document.getElementById("player2-name");
+  const player2Name = players.player2.name 
+  player2NameEl.textContent =  player2Name
+
+  const player2ScoreEl = document.getElementById("player2-score");
+  player2ScoreEl.textContent = players.player2.getPoint()
+
   let mark;
   let turn;
 
@@ -20,24 +45,24 @@ const board = (() => {
   // HELPER FUNCTIONS //
   //==================//
   function changeTurn() {
-    if (turn == "player1") {
-      turn = "player2"
-      return "player2"
+    if (turn == player1Name) {
+      turn = player2Name
+      return player2Name
     } 
 
-    if (turn == "player2") {
-      turn = "player1"
-      return "player1"
-    } 
+    if (turn == player2Name) {
+      turn = player1Name
+      return player1Name
+    }
   }
 
   function returnMark() {
-    if (turn == "player1") {
+    if (turn == player1Name) {
       mark = "X"
       return mark 
     }
 
-    if (turn == "player2") {
+    if (turn == player2Name) {
       mark = "O"
       return mark 
     }
@@ -140,9 +165,11 @@ const board = (() => {
       if (thePlayerWonByRows() === 'X') {
         console.log(`${players.player1.name} is the winner`);
         players.player1.addPoint()
+        player1ScoreEl.textContent = players.player1.getPoint()
       } else {
         console.log(`${players.player2.name} is the winner`);
         players.player2.addPoint()
+        player2ScoreEl.textContent = players.player2.getPoint()
       }
 
       disableButtons()
@@ -168,9 +195,11 @@ const board = (() => {
       if (thePlayerWonByColumns() === 'X') {
         console.log(`${players.player1.name} is the winner`);
         players.player1.addPoint()
+        player1ScoreEl.textContent = players.player1.getPoint()
       } else {
         console.log(`${players.player2.name} is the winner`);
         players.player2.addPoint()
+        player2ScoreEl.textContent = players.player2.getPoint()
       }
 
       disableButtons()
@@ -182,9 +211,11 @@ const board = (() => {
       if ( thePlayerWonByDiagonals == 'X') {
         console.log(`${players.player1.name} is the winner`);
         players.player1.addPoint()
+        player1ScoreEl.textContent = players.player1.getPoint()
       } else {
         console.log(`${players.player2.name} is the winner`);
         players.player2.addPoint()
+        player2ScoreEl.textContent = players.player2.getPoint()
       }
 
       disableButtons()
@@ -232,9 +263,9 @@ const board = (() => {
   function startGame() {
     const cells = document.querySelectorAll('.cell');
     mark = "O";
-    turn = "player1"
+    turn = player1Name
 
-    playerTurn.textContent = "player1"    
+    playerTurn.textContent = player1Name
 
     cells.forEach((element) => element.addEventListener("click", () => {
       if (element.dataset.marked == "true") {
@@ -302,12 +333,6 @@ const board = (() => {
 
   return { gameBoard, displayBoard, changeCell, startGame }
 })();
-
-// 2. your players are stored in objects.
-const players = {
-  player1: createPlayer("Joe"),
-  player2: createPlayer("Mama")
-}
 
 // 3. probably want an object to control the flow of the game.
 const gameFlow = {
