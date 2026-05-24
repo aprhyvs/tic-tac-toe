@@ -27,3 +27,8 @@ header {
 .cell:disabled {
   background-color: hsl(0 0 64);
 }
+
+.form {
+  display: flex;
+  flex-direction: column;
+}

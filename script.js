@@ -90,26 +90,26 @@ const board = (() => {
 
   function checkIfEqualColumn(array, i, j, column) {
     if (array[i][column] === null || array[j][column] === null || array[2][column] === null) {
-      console.log("column isn't complete. check the other column")
-      return;
+      // console.log("column isn't complete. check the other column")
+      return false;
     } 
     
     if (array[i][column] === array[j][column]) {
-      console.log(`${array[i][column]} and ${array[j][column]}`)
-      console.log("true")
+      // console.log(`${array[i][column]} and ${array[j][column]}`)
+      // console.log("true")
       j++
       if (array[i][column] === array[j][column]){
-        console.log(`${array[i][column]} and ${array[j][column]}`)
-        console.log("true, all columns check. win")
+        // console.log(`${array[i][column]} and ${array[j][column]}`)
+        // console.log("true, all columns check. win")
         // return true
         return array[i][column]
       } else {
-        console.log(`${array[i][column]} and ${array[j][column]}`)
-        console.log("first check was true, but second is false, check next column")
+        // console.log(`${array[i][column]} and ${array[j][column]}`)
+        // console.log("first check was true, but second is false, check next column")
         return false
       }   
     } else {
-      console.log(`${array[i][column]} and ${array[j][column]} = false, check next column`)
+      // console.log(`${array[i][column]} and ${array[j][column]} = false, check next column`)
       return false
     }
   }
@@ -180,12 +180,22 @@ const board = (() => {
       checkIfEqualColumn(gameBoard, 0, 1, 1) || 
       checkIfEqualColumn(gameBoard, 0, 1, 2)
     ) {
+
+      console.log(checkIfEqualColumn(gameBoard, 0, 1, 0))
+      console.log(checkIfEqualColumn(gameBoard, 0, 1, 1))
+      console.log(checkIfEqualColumn(gameBoard, 0, 1, 2))
+
       function thePlayerWonByColumns() {
         let i = 0;
+        console.log(i)
         do {
           if (!checkIfEqualColumn(gameBoard, 0, 1, i)) {
-            i += 1;
-          } else {
+            i++;
+            console.log(i)
+          } 
+
+          if (checkIfEqualColumn(gameBoard, 0, 1, i) === 'X' ||
+              checkIfEqualColumn(gameBoard, 0, 1, i) === 'O') {
             console.log(checkIfEqualColumn(gameBoard, 0, 1, i))
             return checkIfEqualColumn(gameBoard, 0, 1, i)
           }
@@ -196,7 +206,7 @@ const board = (() => {
         console.log(`${players.player1.name} is the winner`);
         players.player1.addPoint()
         player1ScoreEl.textContent = players.player1.getPoint()
-      } else {
+      } else if (thePlayerWonByColumns() === 'O') {
         console.log(`${players.player2.name} is the winner`);
         players.player2.addPoint()
         player2ScoreEl.textContent = players.player2.getPoint()

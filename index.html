@@ -26,8 +26,30 @@
       <p>Player 2: <span id="player2-name"></span></p>
       <p id="player2-score"></p>
     </div>
+
+    <button id="open-change-name">
+      Open Change Name
+    </button>
   </header>
   <div class="gameboard" id="game-board">
   </div>
+
+  <dialog class="form-modal" id="add-name-modal">
+    <button id="close-modal">
+      Close
+    </button>
+
+    <form class="form" action="" id="name-form">
+      <label for="player1">Player 1 Name</label>
+      <input type="text" name="player1">
+
+      <label for="player2">Player 2 Name</label>
+      <input type="text" name="player2">
+
+      <button type="submit" id="submit-names">
+        Send Names
+      </button>
+    </form>
+  </dialog>
 </body>
 </html>
