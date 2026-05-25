@@ -7,7 +7,9 @@ function createPlayer (name) {
 
   const getPoint = () => { return points }
 
-  return { name, addPoint, getPoint }
+  const resetPoint = () => { points = 0 }
+
+  return { name, addPoint, getPoint, resetPoint }
 }
 
 // 2. your players are stored in objects.
@@ -24,19 +26,16 @@ const board = (() => {
 
   //player 1 header textcontent
   const player1NameEl = document.getElementById("player1-name");
-  const player1Name = players.player1.name 
-  player1NameEl.textContent = player1Name
-
   const player1ScoreEl = document.getElementById("player1-score");
   player1ScoreEl.textContent = players.player1.getPoint()
 
   //player 2 header textcontent
   const player2NameEl = document.getElementById("player2-name");
-  const player2Name = players.player2.name 
-  player2NameEl.textContent =  player2Name
-
   const player2ScoreEl = document.getElementById("player2-score");
   player2ScoreEl.textContent = players.player2.getPoint()
+
+  let player1Name;
+  let player2Name;
 
   let mark;
   let turn;
@@ -196,7 +195,6 @@ const board = (() => {
 
           if (checkIfEqualColumn(gameBoard, 0, 1, i) === 'X' ||
               checkIfEqualColumn(gameBoard, 0, 1, i) === 'O') {
-            console.log(checkIfEqualColumn(gameBoard, 0, 1, i))
             return checkIfEqualColumn(gameBoard, 0, 1, i)
           }
         } while (!checkIfEqualColumn(gameBoard, 0, 1, i))
@@ -241,6 +239,16 @@ const board = (() => {
     disableButtons()
   }
 
+  function renderPlayerNames() {
+    //player 1 header textcontent
+    player1Name = players.player1.name 
+    player1NameEl.textContent = player1Name
+
+    //player 2 header textcontent
+    player2Name = players.player2.name 
+    player2NameEl.textContent =  player2Name
+  }
+
   function renderBoard() {
     startGameBtn.textContent = "Restart Game";
     const gameBoardEl = document.getElementById('game-board');
@@ -271,6 +279,7 @@ const board = (() => {
   }
 
   function startGame() {
+    renderPlayerNames();
     const cells = document.querySelectorAll('.cell');
     mark = "O";
     turn = player1Name
@@ -310,7 +319,6 @@ const board = (() => {
     displayBoard();
   });
 
-
   const changeCell = (row, column, change) => {
     try {
 
@@ -340,6 +348,44 @@ const board = (() => {
       return;
     }
   }
+
+  // open form for changeName
+  const changeNameModal = document.getElementById('add-name-modal');
+  const openChangeNameModalBtn = document.getElementById('open-change-name');
+
+  openChangeNameModalBtn.addEventListener("click", () => {
+    changeNameModal.showModal()
+  });
+
+  const closeChangeNameModalBtn = document.getElementById('close-modal')
+  closeChangeNameModalBtn.addEventListener("click", () => {
+    changeNameModal.close()
+  });
+
+  // changeName form handling
+  const changeNameForm = document.getElementById('name-form');
+
+  changeNameForm.addEventListener("submit", (event) => {
+    event.preventDefault();
+
+    const player1NameInput = document.querySelector('[name="player1"]').value
+    const player2NameInput = document.querySelector('[name="player2"]').value
+
+    players.player1 = createPlayer(player1NameInput)
+    players.player2 = createPlayer(player2NameInput)
+
+    players.player1.resetPoint()
+    players.player2.resetPoint()
+
+    player1ScoreEl.textContent = players.player1.getPoint()
+    player2ScoreEl.textContent = players.player2.getPoint()
+
+    renderPlayerNames()
+
+    changeNameModal.close();
+
+    startGame()
+  });
 
   return { gameBoard, displayBoard, changeCell, startGame }
 })();
