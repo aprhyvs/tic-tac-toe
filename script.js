@@ -19,30 +19,55 @@ const players = {
 }
 
 const board = (() => {
-  // probably wrap in a function soon, 
-  // so it can be initialized for next games
-  const playerTurn = document.getElementById("player-turn");
-  const startGameBtn = document.getElementById("start-game");
+  // 1. store the gameboard as an array inside of a Gameboard object
+  const gameBoard = [
+    [null, null, null],
+    [null, null, null],
+    [null, null, null]
+  ]
 
-  //player 1 header textcontent
-  const player1NameEl = document.getElementById("player1-name");
-  const player1ScoreEl = document.getElementById("player1-score");
-  player1ScoreEl.textContent = players.player1.getPoint()
+  function checkFull(array){
+    if (array.every((element) => typeof element === 'string')){
+      return true;
+    } else {
+      return false;
+    }
+  }
 
-  //player 2 header textcontent
-  const player2NameEl = document.getElementById("player2-name");
-  const player2ScoreEl = document.getElementById("player2-score");
-  player2ScoreEl.textContent = players.player2.getPoint()
+  const changeCell = (row, column, change) => {
+    try {
 
-  let player1Name;
-  let player2Name;
+      if (row >= 3) {
+        throw new ReferenceError("That's outside the bounds of row!")
+      } 
+      
+      if (column >= 3) {
+        throw new ReferenceError("That's outside the bounds of column!")
+      }
 
-  let mark;
-  let turn;
+      gameBoard[row][column] = change
 
-  //==================//
-  // HELPER FUNCTIONS //
-  //==================//
+      displayController.displayBoard();
+      gameFlow.checkWinCondition();
+
+      if (checkFull(gameBoard[0]) && 
+          checkFull(gameBoard[1]) && 
+          checkFull(gameBoard[2])
+        ) {
+        gameFlow.checkDrawCondition();
+      }
+
+      displayController.playerTurn.textContent = displayController.changeTurn()
+    } catch (error) {
+      console.error(error)
+      return;
+    }
+  }
+
+  return { gameBoard, changeCell, }
+})();
+
+const displayController = (() => {
   function changeTurn() {
     if (turn == player1Name) {
       turn = player2Name
@@ -66,15 +91,120 @@ const board = (() => {
       return mark 
     }
   } 
+  // probably wrap in a function soon, 
+  // so it can be initialized for next games
+  const playerTurn = document.getElementById("player-turn");
+  const startGameBtn = document.getElementById("start-game");
 
-  function checkFull(array){
-    if (array.every((element) => typeof element === 'string')){
-      return true;
-    } else {
-      return false;
+  //player 1 header textcontent
+  const player1NameEl = document.getElementById("player1-name");
+  const player1ScoreEl = document.getElementById("player1-score");
+  player1ScoreEl.textContent = players.player1.getPoint()
+
+  //player 2 header textcontent
+  const player2NameEl = document.getElementById("player2-name");
+  const player2ScoreEl = document.getElementById("player2-score");
+  player2ScoreEl.textContent = players.player2.getPoint()
+
+  let player1Name;
+  let player2Name;
+
+  let mark;
+  let turn;
+
+  function renderPlayerNames() {
+    //player 1 header textcontent
+    player1Name = players.player1.name 
+    player1NameEl.textContent = player1Name
+
+    //player 2 header textcontent
+    player2Name = players.player2.name 
+    player2NameEl.textContent =  player2Name
+  }
+
+  function renderBoard() {
+    startGameBtn.textContent = "Restart Game";
+    const gameBoardEl = document.getElementById('game-board');
+    const oldGameBoardCells = document.querySelectorAll('.cell');
+
+    if (oldGameBoardCells.length > 0) {
+      oldGameBoardCells.forEach(element => element.remove())
+    }
+
+    // clear the gameBoard array
+    for (let row = 0, column = 0; row < 3; row++) {
+      board.gameBoard[row].fill(null, 0);
+    }
+
+    // create new gameBoard cells
+    for (let i = 0, row = 0, column = 0; i < 9; i++, column++) {
+      if (column > 2) {
+        row++
+        column = 0
+      }
+      const newCell = document.createElement("button")
+      newCell.classList.add('cell')
+      newCell.setAttribute('data-row', row)
+      newCell.setAttribute('data-column', column)
+      newCell.setAttribute('data-marked', false)
+      gameBoardEl.appendChild(newCell)
     }
   }
 
+  function startGame() {
+    renderPlayerNames();
+    const cells = document.querySelectorAll('.cell');
+    mark = "O";
+    turn = player1Name
+
+    playerTurn.textContent = player1Name
+
+    cells.forEach((element) => element.addEventListener("click", () => {
+      if (element.dataset.marked == "true") {
+        console.warn(`element is marked, it's ${element.textContent}.`)
+        console.log(element)
+        return;
+      } else {
+        element.dataset.marked = "true"
+        board.changeCell(element.dataset.row, element.dataset.column, returnMark())
+      }
+    }));
+  }
+
+  const displayBoard = () => { 
+    const cells = document.querySelectorAll('.cell');
+    for ( let row of board.gameBoard) {
+      console.log(row);
+    } 
+
+    for (let i = 0, row = 0, column = 0; i < 9; i++, column++) {
+      if (column > 2) {
+        row++
+        column = 0
+      }
+      cells[i].textContent = board.gameBoard[row][column]
+    }
+  }
+
+  function initDOMBoard() {
+    renderBoard();
+    startGame();
+    displayController.displayBoard();
+  }
+
+  // startGameBtn.addEventListener("click", () => {
+  //       renderBoard();
+  //   startGame();
+  //   displayController.displayBoard();
+  // });
+
+  startGameBtn.addEventListener("click", initDOMBoard);
+
+  return { displayBoard, renderBoard, changeTurn, renderPlayerNames, startGame, initDOMBoard, playerTurn, player1ScoreEl, player2ScoreEl }
+})();
+
+// 3. probably want an object to control the flow of the game.
+const gameFlow = (() => {
   function checkIfEqualRows(array) {
     if (array.every((element) => element === null)){
       return false;
@@ -135,220 +265,102 @@ const board = (() => {
     cells.forEach((element) => element.disabled = true);
   }
 
-  // 1. store the gameboard as an array inside of a Gameboard object
-  const gameBoard = [
-    [null, null, null],
-    [null, null, null],
-    [null, null, null]
-  ]
-
-  const checkWinCondition = () => { 
+  function checkWinCondition() {
     // check if one of the rows are equal
     if (
-      checkIfEqualRows(gameBoard[0]) ||
-      checkIfEqualRows(gameBoard[1]) || 
-      checkIfEqualRows(gameBoard[2])
+      checkIfEqualRows(board.gameBoard[0]) ||
+      checkIfEqualRows(board.gameBoard[1]) || 
+      checkIfEqualRows(board.gameBoard[2])
     ) {
       // loop through gameBoard to identify who won
       function thePlayerWonByRows() {
         let i = 0;
         do {
-          if (!checkIfEqualRows(gameBoard[i])) {
+          if (!checkIfEqualRows(board.gameBoard[i])) {
             i += 1;
           } else {
-            return checkIfEqualRows(gameBoard[i])
+            return checkIfEqualRows(board.gameBoard[i])
           }
-        } while (!checkIfEqualRows(gameBoard[i]))
+        } while (!checkIfEqualRows(board.gameBoard[i]))
       }
 
       if (thePlayerWonByRows() === 'X') {
         console.log(`${players.player1.name} is the winner`);
         players.player1.addPoint()
-        player1ScoreEl.textContent = players.player1.getPoint()
+        displayController.player1ScoreEl.textContent = players.player1.getPoint()
       } else {
         console.log(`${players.player2.name} is the winner`);
         players.player2.addPoint()
-        player2ScoreEl.textContent = players.player2.getPoint()
+        displayController.player2ScoreEl.textContent = players.player2.getPoint()
       }
 
       disableButtons()
     }
 
     if (
-      checkIfEqualColumn(gameBoard, 0, 1, 0) || 
-      checkIfEqualColumn(gameBoard, 0, 1, 1) || 
-      checkIfEqualColumn(gameBoard, 0, 1, 2)
+      checkIfEqualColumn(board.gameBoard, 0, 1, 0) || 
+      checkIfEqualColumn(board.gameBoard, 0, 1, 1) || 
+      checkIfEqualColumn(board.gameBoard, 0, 1, 2)
     ) {
-
-      console.log(checkIfEqualColumn(gameBoard, 0, 1, 0))
-      console.log(checkIfEqualColumn(gameBoard, 0, 1, 1))
-      console.log(checkIfEqualColumn(gameBoard, 0, 1, 2))
-
       function thePlayerWonByColumns() {
         let i = 0;
         console.log(i)
         do {
-          if (!checkIfEqualColumn(gameBoard, 0, 1, i)) {
+          if (!checkIfEqualColumn(board.gameBoard, 0, 1, i)) {
             i++;
             console.log(i)
           } 
 
-          if (checkIfEqualColumn(gameBoard, 0, 1, i) === 'X' ||
-              checkIfEqualColumn(gameBoard, 0, 1, i) === 'O') {
-            return checkIfEqualColumn(gameBoard, 0, 1, i)
+          if (checkIfEqualColumn(board.gameBoard, 0, 1, i) === 'X' ||
+              checkIfEqualColumn(board.gameBoard, 0, 1, i) === 'O') {
+            return checkIfEqualColumn(board.gameBoard, 0, 1, i)
           }
-        } while (!checkIfEqualColumn(gameBoard, 0, 1, i))
+        } while (!checkIfEqualColumn(board.gameBoard, 0, 1, i))
       }
 
       if (thePlayerWonByColumns() === 'X') {
         console.log(`${players.player1.name} is the winner`);
         players.player1.addPoint()
-        player1ScoreEl.textContent = players.player1.getPoint()
+        displayController.player1ScoreEl.textContent = players.player1.getPoint()
       } else if (thePlayerWonByColumns() === 'O') {
         console.log(`${players.player2.name} is the winner`);
         players.player2.addPoint()
-        player2ScoreEl.textContent = players.player2.getPoint()
+        displayController.player2ScoreEl.textContent = players.player2.getPoint()
       }
 
       disableButtons()
     }
 
-    if (checkIfEqualDiagonals(gameBoard)) {
-      const thePlayerWonByDiagonals = checkIfEqualDiagonals(gameBoard)
+    if (checkIfEqualDiagonals(board.gameBoard)) {
+      const thePlayerWonByDiagonals = checkIfEqualDiagonals(board.gameBoard)
 
       if ( thePlayerWonByDiagonals == 'X') {
         console.log(`${players.player1.name} is the winner`);
         players.player1.addPoint()
-        player1ScoreEl.textContent = players.player1.getPoint()
+        displayController.player1ScoreEl.textContent = players.player1.getPoint()
       } else {
         console.log(`${players.player2.name} is the winner`);
         players.player2.addPoint()
-        player2ScoreEl.textContent = players.player2.getPoint()
+        displayController.player2ScoreEl.textContent = players.player2.getPoint()
+      }
+
+      disableButtons()
+    }
+
+    const checkDrawCondition = () => {
+      if (!checkWinCondition()) {
+        console.log("it's a draw.");
+        return true;
       }
 
       disableButtons()
     }
   }
 
-  const checkDrawCondition = () => {
-    if (!checkWinCondition()) {
-      console.log("it's a draw.");
-      return true;
-    }
+  return { checkWinCondition }
+})();
 
-    disableButtons()
-  }
-
-  function renderPlayerNames() {
-    //player 1 header textcontent
-    player1Name = players.player1.name 
-    player1NameEl.textContent = player1Name
-
-    //player 2 header textcontent
-    player2Name = players.player2.name 
-    player2NameEl.textContent =  player2Name
-  }
-
-  function renderBoard() {
-    startGameBtn.textContent = "Restart Game";
-    const gameBoardEl = document.getElementById('game-board');
-    const oldGameBoardCells = document.querySelectorAll('.cell');
-
-    if (oldGameBoardCells.length > 0) {
-      oldGameBoardCells.forEach(element => element.remove())
-    }
-
-    // clear the gameBoard array
-    for (let row = 0, column = 0; row < 3; row++) {
-      gameBoard[row].fill(null, 0);
-    }
-
-    // create new gameBoard cells
-    for (let i = 0, row = 0, column = 0; i < 9; i++, column++) {
-      if (column > 2) {
-        row++
-        column = 0
-      }
-      const newCell = document.createElement("button")
-      newCell.classList.add('cell')
-      newCell.setAttribute('data-row', row)
-      newCell.setAttribute('data-column', column)
-      newCell.setAttribute('data-marked', false)
-      gameBoardEl.appendChild(newCell)
-    }
-  }
-
-  function startGame() {
-    renderPlayerNames();
-    const cells = document.querySelectorAll('.cell');
-    mark = "O";
-    turn = player1Name
-
-    playerTurn.textContent = player1Name
-
-    cells.forEach((element) => element.addEventListener("click", () => {
-      if (element.dataset.marked == "true") {
-        console.warn(`element is marked, it's ${element.textContent}.`)
-        console.log(element)
-        return;
-      } else {
-        element.dataset.marked = "true"
-        changeCell(element.dataset.row, element.dataset.column, returnMark())
-      }
-    }));
-  }
-
-  const displayBoard = () => { 
-    const cells = document.querySelectorAll('.cell');
-    for ( let row of gameBoard) {
-      console.log(row);
-    } 
-
-    for (let i = 0, row = 0, column = 0; i < 9; i++, column++) {
-      if (column > 2) {
-        row++
-        column = 0
-      }
-      cells[i].textContent = gameBoard[row][column]
-    }
-  }
-
-  startGameBtn.addEventListener("click", () => {
-    renderBoard();
-    startGame();
-    displayBoard();
-  });
-
-  const changeCell = (row, column, change) => {
-    try {
-
-      if (row >= 3) {
-        throw new ReferenceError("That's outside the bounds of row!")
-      } 
-      
-      if (column >= 3) {
-        throw new ReferenceError("That's outside the bounds of column!")
-      }
-
-      gameBoard[row][column] = change
-
-      displayBoard();
-      checkWinCondition();
-
-      if (checkFull(gameBoard[0]) && 
-          checkFull(gameBoard[1]) && 
-          checkFull(gameBoard[2])
-        ) {
-        checkDrawCondition();
-      }
-
-      playerTurn.textContent = changeTurn()
-    } catch (error) {
-      console.error(error)
-      return;
-    }
-  }
-
+const changeNameForm = (() => {
   // open form for changeName
   const changeNameModal = document.getElementById('add-name-modal');
   const openChangeNameModalBtn = document.getElementById('open-change-name');
@@ -377,20 +389,13 @@ const board = (() => {
     players.player1.resetPoint()
     players.player2.resetPoint()
 
-    player1ScoreEl.textContent = players.player1.getPoint()
-    player2ScoreEl.textContent = players.player2.getPoint()
+    displayController.player1ScoreEl.textContent = players.player1.getPoint()
+    displayController.player2ScoreEl.textContent = players.player2.getPoint()
 
-    renderPlayerNames()
+    displayController.renderPlayerNames()
 
     changeNameModal.close();
 
-    startGame()
+    displayController.initDOMBoard()
   });
-
-  return { gameBoard, displayBoard, changeCell, startGame }
 })();
-
-// 3. probably want an object to control the flow of the game.
-const gameFlow = {
-
-}
