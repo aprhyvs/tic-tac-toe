@@ -57,40 +57,17 @@ const board = (() => {
         gameFlow.checkDrawCondition();
       }
 
-      displayController.playerTurn.textContent = displayController.changeTurn()
+      displayController.playerTurn.textContent = gameFlow.changeTurn()
     } catch (error) {
       console.error(error)
       return;
     }
   }
 
-  return { gameBoard, changeCell, }
+  return { gameBoard, changeCell }
 })();
 
 const displayController = (() => {
-  function changeTurn() {
-    if (turn == player1Name) {
-      turn = player2Name
-      return player2Name
-    } 
-
-    if (turn == player2Name) {
-      turn = player1Name
-      return player1Name
-    }
-  }
-
-  function returnMark() {
-    if (turn == player1Name) {
-      mark = "X"
-      return mark 
-    }
-
-    if (turn == player2Name) {
-      mark = "O"
-      return mark 
-    }
-  } 
   // probably wrap in a function soon, 
   // so it can be initialized for next games
   const playerTurn = document.getElementById("player-turn");
@@ -106,22 +83,7 @@ const displayController = (() => {
   const player2ScoreEl = document.getElementById("player2-score");
   player2ScoreEl.textContent = players.player2.getPoint()
 
-  let player1Name;
-  let player2Name;
-
-  let mark;
-  let turn;
-
-  function renderPlayerNames() {
-    //player 1 header textcontent
-    player1Name = players.player1.name 
-    player1NameEl.textContent = player1Name
-
-    //player 2 header textcontent
-    player2Name = players.player2.name 
-    player2NameEl.textContent =  player2Name
-  }
-
+  // creates the tic-tac-toe board
   function renderBoard() {
     startGameBtn.textContent = "Restart Game";
     const gameBoardEl = document.getElementById('game-board');
@@ -151,26 +113,7 @@ const displayController = (() => {
     }
   }
 
-  function startGame() {
-    renderPlayerNames();
-    const cells = document.querySelectorAll('.cell');
-    mark = "O";
-    turn = player1Name
-
-    playerTurn.textContent = player1Name
-
-    cells.forEach((element) => element.addEventListener("click", () => {
-      if (element.dataset.marked == "true") {
-        console.warn(`element is marked, it's ${element.textContent}.`)
-        console.log(element)
-        return;
-      } else {
-        element.dataset.marked = "true"
-        board.changeCell(element.dataset.row, element.dataset.column, returnMark())
-      }
-    }));
-  }
-
+  // displays what the content of each cell are
   const displayBoard = () => { 
     const cells = document.querySelectorAll('.cell');
     for ( let row of board.gameBoard) {
@@ -188,23 +131,77 @@ const displayController = (() => {
 
   function initDOMBoard() {
     renderBoard();
-    startGame();
+    gameFlow.startGame();
     displayController.displayBoard();
   }
 
-  // startGameBtn.addEventListener("click", () => {
-  //       renderBoard();
-  //   startGame();
-  //   displayController.displayBoard();
-  // });
-
   startGameBtn.addEventListener("click", initDOMBoard);
 
-  return { displayBoard, renderBoard, changeTurn, renderPlayerNames, startGame, initDOMBoard, playerTurn, player1ScoreEl, player2ScoreEl }
+  return { displayBoard, renderBoard, initDOMBoard, playerTurn, player1NameEl, player1ScoreEl, player2NameEl, player2ScoreEl }
 })();
 
 // 3. probably want an object to control the flow of the game.
 const gameFlow = (() => {
+    let player1Name;
+    let player2Name;
+
+    let mark;
+    let turn;
+
+    function setPlayerNames() {
+      //player 1 header textcontent
+      player1Name = players.player1.name 
+      displayController.player1NameEl.textContent = player1Name
+
+      //player 2 header textcontent
+      player2Name = players.player2.name 
+      displayController.player2NameEl.textContent =  player2Name
+    }
+
+    function startGame() {
+      setPlayerNames();
+      const cells = document.querySelectorAll('.cell');
+      mark = "O";
+      turn = player1Name
+
+      displayController.playerTurn.textContent = player1Name
+
+      cells.forEach((element) => element.addEventListener("click", () => {
+        if (element.dataset.marked == "true") {
+          console.warn(`element is marked, it's ${element.textContent}.`)
+          console.log(element)
+          return;
+        } else {
+          element.dataset.marked = "true"
+          board.changeCell(element.dataset.row, element.dataset.column, gameFlow.returnMark())
+        }
+      }));
+    }
+
+  function changeTurn() {
+    if (turn == player1Name) {
+      turn = player2Name
+      return player2Name
+    } 
+
+    if (turn == player2Name) {
+      turn = player1Name
+      return player1Name
+    }
+  }
+
+  function returnMark() {
+    if (turn == player1Name) {
+      mark = "X"
+      return mark 
+    }
+
+    if (turn == player2Name) {
+      mark = "O"
+      return mark 
+    }
+  } 
+
   function checkIfEqualRows(array) {
     if (array.every((element) => element === null)){
       return false;
@@ -346,18 +343,18 @@ const gameFlow = (() => {
 
       disableButtons()
     }
-
-    const checkDrawCondition = () => {
-      if (!checkWinCondition()) {
-        console.log("it's a draw.");
-        return true;
-      }
-
-      disableButtons()
-    }
   }
 
-  return { checkWinCondition }
+  const checkDrawCondition = () => {
+    if (!checkWinCondition()) {
+      console.log("it's a draw.");
+      return true;
+    }
+
+    disableButtons()
+  }
+
+  return { checkWinCondition, checkDrawCondition, startGame, returnMark, changeTurn, setPlayerNames }
 })();
 
 const changeNameForm = (() => {
@@ -392,7 +389,7 @@ const changeNameForm = (() => {
     displayController.player1ScoreEl.textContent = players.player1.getPoint()
     displayController.player2ScoreEl.textContent = players.player2.getPoint()
 
-    displayController.renderPlayerNames()
+    gameFlow.setPlayerNames()
 
     changeNameModal.close();
 
