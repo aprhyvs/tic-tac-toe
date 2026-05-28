@@ -26,12 +26,8 @@ const board = (() => {
     [null, null, null]
   ]
 
-  function checkFull(array){
-    if (array.every((element) => typeof element === 'string')){
-      return true;
-    } else {
-      return false;
-    }
+  function getGameBoard(){
+    return gameBoard
   }
 
   const changeCell = (row, column, change) => {
@@ -49,13 +45,7 @@ const board = (() => {
 
       displayController.displayBoard();
       gameFlow.checkWinCondition();
-
-      if (checkFull(gameBoard[0]) && 
-          checkFull(gameBoard[1]) && 
-          checkFull(gameBoard[2])
-        ) {
-        gameFlow.checkDrawCondition();
-      }
+      gameFlow.checkDrawCondition();
 
       displayController.playerTurn.textContent = gameFlow.changeTurn()
     } catch (error) {
@@ -64,7 +54,7 @@ const board = (() => {
     }
   }
 
-  return { gameBoard, changeCell }
+  return { getGameBoard, changeCell }
 })();
 
 const displayController = (() => {
@@ -95,7 +85,7 @@ const displayController = (() => {
 
     // clear the gameBoard array
     for (let row = 0, column = 0; row < 3; row++) {
-      board.gameBoard[row].fill(null, 0);
+      board.getGameBoard()[row].fill(null, 0);
     }
 
     // create new gameBoard cells
@@ -116,7 +106,7 @@ const displayController = (() => {
   // displays what the content of each cell are
   const displayBoard = () => { 
     const cells = document.querySelectorAll('.cell');
-    for ( let row of board.gameBoard) {
+    for ( let row of board.getGameBoard()) {
       console.log(row);
     } 
 
@@ -125,7 +115,7 @@ const displayController = (() => {
         row++
         column = 0
       }
-      cells[i].textContent = board.gameBoard[row][column]
+      cells[i].textContent = board.getGameBoard()[row][column]
     }
   }
 
@@ -142,41 +132,41 @@ const displayController = (() => {
 
 // 3. probably want an object to control the flow of the game.
 const gameFlow = (() => {
-    let player1Name;
-    let player2Name;
+  let player1Name;
+  let player2Name;
 
-    let mark;
-    let turn;
+  let mark;
+  let turn;
 
-    function setPlayerNames() {
-      //player 1 header textcontent
-      player1Name = players.player1.name 
-      displayController.player1NameEl.textContent = player1Name
+  function setPlayerNames() {
+    //player 1 header textcontent
+    player1Name = players.player1.name 
+    displayController.player1NameEl.textContent = player1Name
 
-      //player 2 header textcontent
-      player2Name = players.player2.name 
-      displayController.player2NameEl.textContent =  player2Name
-    }
+    //player 2 header textcontent
+    player2Name = players.player2.name 
+    displayController.player2NameEl.textContent = player2Name
+  }
 
-    function startGame() {
-      setPlayerNames();
-      const cells = document.querySelectorAll('.cell');
-      mark = "O";
-      turn = player1Name
+  function startGame() {
+    setPlayerNames();
+    const cells = document.querySelectorAll('.cell');
+    mark = "O";
+    turn = player1Name
 
-      displayController.playerTurn.textContent = player1Name
+    displayController.playerTurn.textContent = player1Name
 
-      cells.forEach((element) => element.addEventListener("click", () => {
-        if (element.dataset.marked == "true") {
-          console.warn(`element is marked, it's ${element.textContent}.`)
-          console.log(element)
-          return;
-        } else {
-          element.dataset.marked = "true"
-          board.changeCell(element.dataset.row, element.dataset.column, gameFlow.returnMark())
-        }
-      }));
-    }
+    cells.forEach((element) => element.addEventListener("click", () => {
+      if (element.dataset.marked == "true") {
+        console.warn(`element is marked, it's ${element.textContent}.`)
+        console.log(element)
+        return;
+      } else {
+        element.dataset.marked = "true"
+        board.changeCell(element.dataset.row, element.dataset.column, gameFlow.returnMark())
+      }
+    }));
+  }
 
   function changeTurn() {
     if (turn == player1Name) {
@@ -256,29 +246,38 @@ const gameFlow = (() => {
     return false
   }
 
+  function checkFull(array){
+    if (array.every((element) => typeof element === 'string')){
+      return true;
+    } else {
+      return false;
+    }
+  }
+
   function disableButtons() {
     const cells = document.querySelectorAll('.cell');
 
     cells.forEach((element) => element.disabled = true);
   }
 
+  const currentBoard = board.getGameBoard()
   function checkWinCondition() {
     // check if one of the rows are equal
     if (
-      checkIfEqualRows(board.gameBoard[0]) ||
-      checkIfEqualRows(board.gameBoard[1]) || 
-      checkIfEqualRows(board.gameBoard[2])
+      checkIfEqualRows(currentBoard[0]) ||
+      checkIfEqualRows(currentBoard[1]) || 
+      checkIfEqualRows(currentBoard[2])
     ) {
-      // loop through gameBoard to identify who won
+      // loop through currentBoard to identify who won
       function thePlayerWonByRows() {
         let i = 0;
         do {
-          if (!checkIfEqualRows(board.gameBoard[i])) {
+          if (!checkIfEqualRows(currentBoard[i])) {
             i += 1;
           } else {
-            return checkIfEqualRows(board.gameBoard[i])
+            return checkIfEqualRows(currentBoard[i])
           }
-        } while (!checkIfEqualRows(board.gameBoard[i]))
+        } while (!checkIfEqualRows(currentBoard[i]))
       }
 
       if (thePlayerWonByRows() === 'X') {
@@ -292,27 +291,29 @@ const gameFlow = (() => {
       }
 
       disableButtons()
+ 
+      return true
     }
 
     if (
-      checkIfEqualColumn(board.gameBoard, 0, 1, 0) || 
-      checkIfEqualColumn(board.gameBoard, 0, 1, 1) || 
-      checkIfEqualColumn(board.gameBoard, 0, 1, 2)
+      checkIfEqualColumn(currentBoard, 0, 1, 0) || 
+      checkIfEqualColumn(currentBoard, 0, 1, 1) || 
+      checkIfEqualColumn(currentBoard, 0, 1, 2)
     ) {
       function thePlayerWonByColumns() {
         let i = 0;
         console.log(i)
         do {
-          if (!checkIfEqualColumn(board.gameBoard, 0, 1, i)) {
+          if (!checkIfEqualColumn(currentBoard, 0, 1, i)) {
             i++;
             console.log(i)
           } 
 
-          if (checkIfEqualColumn(board.gameBoard, 0, 1, i) === 'X' ||
-              checkIfEqualColumn(board.gameBoard, 0, 1, i) === 'O') {
-            return checkIfEqualColumn(board.gameBoard, 0, 1, i)
+          if (checkIfEqualColumn(currentBoard, 0, 1, i) === 'X' ||
+              checkIfEqualColumn(currentBoard, 0, 1, i) === 'O') {
+            return checkIfEqualColumn(currentBoard, 0, 1, i)
           }
-        } while (!checkIfEqualColumn(board.gameBoard, 0, 1, i))
+        } while (!checkIfEqualColumn(currentBoard, 0, 1, i))
       }
 
       if (thePlayerWonByColumns() === 'X') {
@@ -326,10 +327,12 @@ const gameFlow = (() => {
       }
 
       disableButtons()
+
+      return true
     }
 
-    if (checkIfEqualDiagonals(board.gameBoard)) {
-      const thePlayerWonByDiagonals = checkIfEqualDiagonals(board.gameBoard)
+    if (checkIfEqualDiagonals(currentBoard)) {
+      const thePlayerWonByDiagonals = checkIfEqualDiagonals(currentBoard)
 
       if ( thePlayerWonByDiagonals == 'X') {
         console.log(`${players.player1.name} is the winner`);
@@ -342,16 +345,37 @@ const gameFlow = (() => {
       }
 
       disableButtons()
+
+      return true
     }
+
+    return false
   }
 
-  const checkDrawCondition = () => {
-    if (!checkWinCondition()) {
-      console.log("it's a draw.");
-      return true;
-    }
+  // const checkDrawCondition = () => {
+  //   if (!checkWinCondition()) {
+  //     console.log("it's a draw.");
+  //     return true;
+  //   }
 
-    disableButtons()
+  //   disableButtons()
+  // }
+
+  function checkDrawCondition() {
+    if (checkFull(currentBoard[0]) && checkFull(currentBoard[1]) && checkFull(currentBoard[2])) {
+      if (
+        !checkIfEqualRows(currentBoard[0]) &&
+        !checkIfEqualRows(currentBoard[1]) &&
+        !checkIfEqualRows(currentBoard[2]) &&
+        !checkIfEqualColumn(currentBoard, 0, 1, 0) &&
+        !checkIfEqualColumn(currentBoard, 0, 1, 1) &&
+        !checkIfEqualColumn(currentBoard, 0, 1, 2) &&
+        !checkIfEqualDiagonals(currentBoard)
+      ) {
+        console.log("it's a draw.")
+        disableButtons()
+      }
+    }
   }
 
   return { checkWinCondition, checkDrawCondition, startGame, returnMark, changeTurn, setPlayerNames }
