@@ -151,6 +151,7 @@ const gameFlow = (() => {
   function startGame() {
     setPlayerNames();
     const cells = document.querySelectorAll('.cell');
+    playerWinnerEl.textContent = ""
     mark = "O";
     turn = player1Name
 
@@ -206,26 +207,17 @@ const gameFlow = (() => {
 
   function checkIfEqualColumn(array, i, j, column) {
     if (array[i][column] === null || array[j][column] === null || array[2][column] === null) {
-      // console.log("column isn't complete. check the other column")
       return false;
     } 
     
     if (array[i][column] === array[j][column]) {
-      // console.log(`${array[i][column]} and ${array[j][column]}`)
-      // console.log("true")
       j++
       if (array[i][column] === array[j][column]){
-        // console.log(`${array[i][column]} and ${array[j][column]}`)
-        // console.log("true, all columns check. win")
-        // return true
         return array[i][column]
       } else {
-        // console.log(`${array[i][column]} and ${array[j][column]}`)
-        // console.log("first check was true, but second is false, check next column")
         return false
       }   
     } else {
-      // console.log(`${array[i][column]} and ${array[j][column]} = false, check next column`)
       return false
     }
   }
@@ -261,6 +253,7 @@ const gameFlow = (() => {
   }
 
   const currentBoard = board.getGameBoard()
+  const playerWinnerEl = document.getElementById("player-winner");
   function checkWinCondition() {
     // check if one of the rows are equal
     if (
@@ -281,13 +274,13 @@ const gameFlow = (() => {
       }
 
       if (thePlayerWonByRows() === 'X') {
-        console.log(`${players.player1.name} is the winner`);
         players.player1.addPoint()
         displayController.player1ScoreEl.textContent = players.player1.getPoint()
+        playerWinnerEl.textContent = `${players.player1.name} is the winner`
       } else {
-        console.log(`${players.player2.name} is the winner`);
         players.player2.addPoint()
         displayController.player2ScoreEl.textContent = players.player2.getPoint()
+        playerWinnerEl.textContent = `${players.player2.name} is the winner`
       }
 
       disableButtons()
@@ -317,13 +310,13 @@ const gameFlow = (() => {
       }
 
       if (thePlayerWonByColumns() === 'X') {
-        console.log(`${players.player1.name} is the winner`);
         players.player1.addPoint()
         displayController.player1ScoreEl.textContent = players.player1.getPoint()
+        playerWinnerEl.textContent = `${players.player1.name} is the winner`
       } else if (thePlayerWonByColumns() === 'O') {
-        console.log(`${players.player2.name} is the winner`);
         players.player2.addPoint()
         displayController.player2ScoreEl.textContent = players.player2.getPoint()
+        playerWinnerEl.textContent = `${players.player2.name} is the winner`
       }
 
       disableButtons()
@@ -335,13 +328,13 @@ const gameFlow = (() => {
       const thePlayerWonByDiagonals = checkIfEqualDiagonals(currentBoard)
 
       if ( thePlayerWonByDiagonals == 'X') {
-        console.log(`${players.player1.name} is the winner`);
         players.player1.addPoint()
         displayController.player1ScoreEl.textContent = players.player1.getPoint()
+        playerWinnerEl.textContent = `${players.player1.name} is the winner`
       } else {
-        console.log(`${players.player2.name} is the winner`);
         players.player2.addPoint()
         displayController.player2ScoreEl.textContent = players.player2.getPoint()
+        playerWinnerEl.textContent = `${players.player2.name} is the winner`
       }
 
       disableButtons()
@@ -351,15 +344,6 @@ const gameFlow = (() => {
 
     return false
   }
-
-  // const checkDrawCondition = () => {
-  //   if (!checkWinCondition()) {
-  //     console.log("it's a draw.");
-  //     return true;
-  //   }
-
-  //   disableButtons()
-  // }
 
   function checkDrawCondition() {
     if (checkFull(currentBoard[0]) && checkFull(currentBoard[1]) && checkFull(currentBoard[2])) {
@@ -373,6 +357,7 @@ const gameFlow = (() => {
         !checkIfEqualDiagonals(currentBoard)
       ) {
         console.log("it's a draw.")
+        playerWinnerEl.textContent = `it's a draw!`
         disableButtons()
       }
     }
