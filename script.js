@@ -12,12 +12,6 @@ function createPlayer (name) {
   return { name, addPoint, getPoint, resetPoint }
 }
 
-// 2. your players are stored in objects.
-const players = {
-  player1: createPlayer("Joe"),
-  player2: createPlayer("Mama")
-}
-
 const board = (() => {
   // 1. store the gameboard as an array inside of a Gameboard object
   const gameBoard = [
@@ -57,81 +51,29 @@ const board = (() => {
   return { getGameBoard, changeCell }
 })();
 
-const displayController = (() => {
-  // probably wrap in a function soon, 
-  // so it can be initialized for next games
-  const playerTurn = document.getElementById("player-turn");
-  const startGameBtn = document.getElementById("start-game");
-
-  //player 1 header textcontent
-  const player1NameEl = document.getElementById("player1-name");
-  const player1ScoreEl = document.getElementById("player1-score");
-  player1ScoreEl.textContent = players.player1.getPoint()
-
-  //player 2 header textcontent
-  const player2NameEl = document.getElementById("player2-name");
-  const player2ScoreEl = document.getElementById("player2-score");
-  player2ScoreEl.textContent = players.player2.getPoint()
-
-  // creates the tic-tac-toe board
-  function renderBoard() {
-    startGameBtn.textContent = "Restart Game";
-    const gameBoardEl = document.getElementById('game-board');
-    const oldGameBoardCells = document.querySelectorAll('.cell');
-
-    if (oldGameBoardCells.length > 0) {
-      oldGameBoardCells.forEach(element => element.remove())
-    }
-
-    // clear the gameBoard array
-    for (let row = 0, column = 0; row < 3; row++) {
-      board.getGameBoard()[row].fill(null, 0);
-    }
-
-    // create new gameBoard cells
-    for (let i = 0, row = 0, column = 0; i < 9; i++, column++) {
-      if (column > 2) {
-        row++
-        column = 0
-      }
-      const newCell = document.createElement("button")
-      newCell.classList.add('cell')
-      newCell.setAttribute('data-row', row)
-      newCell.setAttribute('data-column', column)
-      newCell.setAttribute('data-marked', false)
-      gameBoardEl.appendChild(newCell)
-    }
-  }
-
-  // displays what the content of each cell are
-  const displayBoard = () => { 
-    const cells = document.querySelectorAll('.cell');
-    for ( let row of board.getGameBoard()) {
-      console.log(row);
-    } 
-
-    for (let i = 0, row = 0, column = 0; i < 9; i++, column++) {
-      if (column > 2) {
-        row++
-        column = 0
-      }
-      cells[i].textContent = board.getGameBoard()[row][column]
-    }
-  }
-
-  function initDOMBoard() {
-    renderBoard();
-    gameFlow.startGame();
-    displayController.displayBoard();
-  }
-
-  startGameBtn.addEventListener("click", initDOMBoard);
-
-  return { displayBoard, renderBoard, initDOMBoard, playerTurn, player1NameEl, player1ScoreEl, player2NameEl, player2ScoreEl }
-})();
-
 // 3. probably want an object to control the flow of the game.
 const gameFlow = (() => {
+  // 2. your players are stored in objects.
+  const players = {
+    player1: createPlayer("Onest"),
+    player2: createPlayer("Twond")
+  }
+
+  function createNewPlayers(player1Name, player2Name) {
+    players.player1 = createPlayer(player1Name)
+    players.player2 = createPlayer(player2Name)
+  }
+
+  function getPlayerPoint(player) {
+    if (player == "player1") {
+      return players.player1.getPoint();
+    } else if (player == "player2") {
+      return players.player2.getPoint();
+    } else {
+      console.error(`use only player1 or player2 as arguments.`)
+    }
+  }
+
   let player1Name;
   let player2Name;
 
@@ -152,7 +94,6 @@ const gameFlow = (() => {
     setPlayerNames();
     const cells = document.querySelectorAll('.cell');
     playerWinnerEl.textContent = ""
-    mark = "O";
     turn = player1Name
 
     displayController.playerTurn.textContent = player1Name
@@ -252,9 +193,10 @@ const gameFlow = (() => {
     cells.forEach((element) => element.disabled = true);
   }
 
-  const currentBoard = board.getGameBoard()
   const playerWinnerEl = document.getElementById("player-winner");
   function checkWinCondition() {
+    const currentBoard = board.getGameBoard()
+
     // check if one of the rows are equal
     if (
       checkIfEqualRows(currentBoard[0]) ||
@@ -346,6 +288,7 @@ const gameFlow = (() => {
   }
 
   function checkDrawCondition() {
+    const currentBoard = board.getGameBoard()
     if (checkFull(currentBoard[0]) && checkFull(currentBoard[1]) && checkFull(currentBoard[2])) {
       if (
         !checkIfEqualRows(currentBoard[0]) &&
@@ -363,7 +306,80 @@ const gameFlow = (() => {
     }
   }
 
-  return { checkWinCondition, checkDrawCondition, startGame, returnMark, changeTurn, setPlayerNames }
+  return { checkWinCondition, checkDrawCondition, startGame, returnMark, changeTurn, setPlayerNames, getPlayerPoint, createNewPlayers }
+})();
+
+const displayController = (() => {
+  // probably wrap in a function soon, 
+  // so it can be initialized for next games
+  const playerTurn = document.getElementById("player-turn");
+  const startGameBtn = document.getElementById("start-game");
+
+  //player 1 header textcontent
+  const player1NameEl = document.getElementById("player1-name");
+  const player1ScoreEl = document.getElementById("player1-score");
+  player1ScoreEl.textContent = gameFlow.getPlayerPoint("player1")
+
+  //player 2 header textcontent
+  const player2NameEl = document.getElementById("player2-name");
+  const player2ScoreEl = document.getElementById("player2-score");
+  player2ScoreEl.textContent = gameFlow.getPlayerPoint("player2")
+
+  // creates the tic-tac-toe board
+  function renderBoard() {
+    startGameBtn.textContent = "Restart Game";
+    const gameBoardEl = document.getElementById('game-board');
+    const oldGameBoardCells = document.querySelectorAll('.cell');
+
+    if (oldGameBoardCells.length > 0) {
+      oldGameBoardCells.forEach(element => element.remove())
+    }
+
+    // clear the gameBoard array
+    for (let row = 0, column = 0; row < 3; row++) {
+      board.getGameBoard()[row].fill(null, 0);
+    }
+
+    // create new gameBoard cells
+    for (let i = 0, row = 0, column = 0; i < 9; i++, column++) {
+      if (column > 2) {
+        row++
+        column = 0
+      }
+      const newCell = document.createElement("button")
+      newCell.classList.add('cell')
+      newCell.setAttribute('data-row', row)
+      newCell.setAttribute('data-column', column)
+      newCell.setAttribute('data-marked', false)
+      gameBoardEl.appendChild(newCell)
+    }
+  }
+
+  // displays what the content of each cell are
+  const displayBoard = () => { 
+    const cells = document.querySelectorAll('.cell');
+    for ( let row of board.getGameBoard()) {
+      console.log(row);
+    } 
+
+    for (let i = 0, row = 0, column = 0; i < 9; i++, column++) {
+      if (column > 2) {
+        row++
+        column = 0
+      }
+      cells[i].textContent = board.getGameBoard()[row][column]
+    }
+  }
+
+  function initDOMBoard() {
+    renderBoard();
+    gameFlow.startGame();
+    displayController.displayBoard();
+  }
+
+  startGameBtn.addEventListener("click", initDOMBoard);
+
+  return { displayBoard, renderBoard, initDOMBoard, playerTurn, player1NameEl, player1ScoreEl, player2NameEl, player2ScoreEl }
 })();
 
 const changeNameForm = (() => {
@@ -389,14 +405,10 @@ const changeNameForm = (() => {
     const player1NameInput = document.querySelector('[name="player1"]').value
     const player2NameInput = document.querySelector('[name="player2"]').value
 
-    players.player1 = createPlayer(player1NameInput)
-    players.player2 = createPlayer(player2NameInput)
+    gameFlow.createNewPlayers(player1NameInput, player2NameInput)
 
-    players.player1.resetPoint()
-    players.player2.resetPoint()
-
-    displayController.player1ScoreEl.textContent = players.player1.getPoint()
-    displayController.player2ScoreEl.textContent = players.player2.getPoint()
+    displayController.player1ScoreEl.textContent = gameFlow.getPlayerPoint("player1")
+    displayController.player2ScoreEl.textContent = gameFlow.getPlayerPoint("player2")
 
     gameFlow.setPlayerNames()
 
